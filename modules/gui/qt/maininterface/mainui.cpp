@@ -164,6 +164,7 @@ bool MainUI::setup(QQmlEngine* engine)
     if (!EffectsImageProvider::instance(engine, engine))
         new EffectsImageProvider(engine);
     engine->addImageProvider(QStringLiteral("svgcolor"), new SVGColorImageImageProvider());
+    engine->addImageProvider(QStringLiteral("redesignsvg"), new RedesignSvgImageProvider());
     engine->addImageProvider(QStringLiteral("vlcaccess"), new VLCAccessImageProvider());
 
     m_component  = new QQmlComponent(engine, QStringLiteral("qrc:/qt/qml/VLC/MainInterface/MainInterface.qml"), QQmlComponent::PreferSynchronous, engine);

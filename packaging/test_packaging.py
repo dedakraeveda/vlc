@@ -20,6 +20,19 @@ class PackagingTests(unittest.TestCase):
             self.assertIn('Delete "$INSTDIR\\vlc.exe"', uninstall)
             self.assertLess(uninstall.index('plugins\\gui"'), uninstall.index('RMDir "$INSTDIR\\plugins"'))
 
+    def test_profiles_never_enter_package(self):
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as tmp:
+            root = Path(tmp)
+            (root / 'portable/ml').mkdir(parents=True)
+            (root / 'portable/README.txt').write_text('Native isolated profile marker', 'utf-8')
+            (root / 'portable/ml/user.db').write_bytes(b'test')
+            (root / 'portable/vlcrc').write_bytes(b'test')
+            install, uninstall, count = build_installer.manifests(root)
+            self.assertEqual(count, 1)
+            self.assertNotIn('user.db', install + uninstall)
+            self.assertNotIn('vlcrc', install + uninstall)
+            self.assertIn('README.txt', install)
+
     def test_nsis_escape(self):
         self.assertEqual(build_installer.escape('a$b"c'), 'a$$b$\\"c')
 

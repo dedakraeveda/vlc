@@ -3,6 +3,7 @@ import argparse
 import datetime
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -16,8 +17,11 @@ EXPECTED = ['VLC-Juxtopposed-4.0-dev-win64-Setup.exe',
 
 
 def invoke(args):
-    proc = subprocess.run(args, cwd=ROOT, capture_output=True, text=True,
-                          creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == 'win32' else 0)
+    try:
+        proc = subprocess.run(args, cwd=ROOT, capture_output=True, text=True, timeout=120,
+                              creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == 'win32' else 0)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        raise ValueError('backend-unavailable-unknown-completion') from None
     if proc.returncode:
         raise ValueError('backend-operation-failed')
     return proc.stdout.strip()
@@ -59,12 +63,30 @@ def main():
             result = {'repo': REPO, 'branch': 'juxtopposed-redesign', 'workflow': 'windows-redesign.yml',
                       'action': 'Submit one native Windows x64 build; installer remains unsigned',
                       'idempotent': False}
+            runs = json.loads(invoke(['gh', 'run', 'list', '--repo', REPO, '--workflow',
+                                      'windows-redesign.yml', '--branch', 'juxtopposed-redesign',
+                                      '--json', 'databaseId,status', '--limit', '10']))
+            result['activeBuilds'] = [r for r in runs if r['status'] != 'completed']
             if args.operation == 'apply':
                 if not args.authorized:
                     raise ValueError('owner-authorization-required')
-                result['submitted'] = invoke(['gh', 'workflow', 'run', 'windows-redesign.yml',
-                                              '--repo', REPO, '--ref', 'juxtopposed-redesign'])
-                result['completionVerified'] = False
+                if result['activeBuilds']:
+                    raise ValueError('concurrent-operation')
+                if invoke(['git', 'status', '--porcelain']):
+                    raise ValueError('revision-changed')
+                lock = ROOT / 'build-logs/dispatch.lock'
+                lock.parent.mkdir(exist_ok=True)
+                try:
+                    descriptor = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                except FileExistsError:
+                    raise ValueError('concurrent-operation') from None
+                try:
+                    result['submitted'] = invoke(['gh', 'workflow', 'run', 'windows-redesign.yml',
+                                                  '--repo', REPO, '--ref', 'juxtopposed-redesign'])
+                    result['completionVerified'] = False
+                finally:
+                    os.close(descriptor)
+                    lock.unlink()
         else:
             if missing:
                 raise ValueError('artifacts-missing')

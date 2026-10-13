@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import time
@@ -31,6 +32,8 @@ def main():
     command = [str(exe), '--no-one-instance', '--no-media-library',
                '--config=' + str(work / 'vlcrc'), '--no-qt-privacy-ask',
                '--no-qt-updates-notif', '--no-qt-autoload-extensions',
+               '--no-qt-video-autoresize', '--no-qt-remember-window-geometry',
+               '--restore-playback-pos=0', '--no-osd',
                '--file-logging', '--logfile=' + str(log), '--verbose=2']
     if args.visible:
         command.remove('--no-media-library')
@@ -73,7 +76,9 @@ def main():
         ok = proc.returncode == 0 and 'using video decoder module' in combined and 'EOF reached' in combined and 'cannot load plug-in' not in combined
     result = {'ok': ok, 'operation': 'qt-startup' if args.gui else 'playback',
               'exitCode': proc.returncode, 'durationSeconds': round(time.monotonic()-started, 2),
-              'log': str(log), 'qtAliveBeforeTermination': alive if args.gui else None}
+              'log': str(log), 'payload': str(exe.parent),
+              'sourceRevisionFromLog': (re.search(r'revision (\S+)', combined).group(1) if re.search(r'revision (\S+)', combined) else None),
+              'qtAliveDuringPlayback': alive if args.gui else None}
     (work / ('qt-result.json' if args.gui else 'playback-result.json')).write_text(json.dumps(result, indent=2), 'utf-8')
     print(json.dumps(result))
     raise SystemExit(0 if ok else 2)

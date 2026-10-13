@@ -51,7 +51,7 @@ Image {
     "shuffle": "<path d=\"M3 6h3l12 12h3m-3-3 3 3-3 3M3 18h3L18 6h3m-3-3 3 3-3 3\" fill=\"none\" stroke=\"COLOR\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/>"
 }
 
-    source: "data:image/svg+xml;utf8," + encodeURIComponent(
+    source: "image://redesignsvg/" + encodeURIComponent(
         '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">'
         + (paths[name] || "").split("COLOR").join(color.toString()) + "</svg>")
     Accessible.ignored: true

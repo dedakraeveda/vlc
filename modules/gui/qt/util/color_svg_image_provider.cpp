@@ -30,6 +30,37 @@
 #include <QBuffer>
 #include <QImageIOHandler>
 
+QImage RedesignSvgImageProvider::requestImage(const QString& id, QSize* size, const QSize& requestedSize)
+{
+    if (id.size() > 65536)
+        return {};
+    const QByteArray svg = QUrl::fromPercentEncoding(id.toUtf8()).toUtf8();
+    // This provider is for inline vector paths only, never external content.
+    if (svg.contains("<!DOCTYPE") || svg.contains("<image") || svg.contains("href="))
+        return {};
+    const auto handler = QScopedPointer<QImageIOHandler>(ImageHelper::createSvgImageIOHandler());
+    if (!handler)
+        return {};
+    QBuffer buffer;
+    buffer.setData(svg);
+    if (!buffer.open(QIODevice::ReadOnly))
+        return {};
+    handler->setDevice(&buffer);
+    if (!handler->canRead())
+        return {};
+    const QSize natural = handler->option(QImageIOHandler::Size).toSize();
+    if (size)
+        *size = natural;
+    const QSize output = requestedSize.isEmpty() ? natural : requestedSize;
+    if (output.isEmpty() || output.width() > 4096 || output.height() > 4096)
+        return {};
+    handler->setOption(QImageIOHandler::ScaledSize, output);
+    QImage image;
+    if (!handler->read(&image))
+        return {};
+    return image;
+}
+
 static const QMap<QString, QString> predefinedSubst = {
     {COLOR1_KEY, "#FF00FF"},
     {COLOR2_KEY, "#00FFFF"},

@@ -20,6 +20,8 @@ with zipfile.ZipFile(args.output, 'x', zipfile.ZIP_DEFLATED, compresslevel=9) as
             continue
         if path.suffix in {'.nsi', '.pdb', '.dbg'} or path.name.startswith('spad'):
             continue
+        if rel.parts[0] == 'portable' and rel.as_posix() != 'portable/README.txt':
+            continue
         if path.is_symlink():
             raise ValueError('Symlink in Windows runtime')
         archive.write(path, Path('VLC-Juxtopposed') / rel)

@@ -17,7 +17,9 @@ def manifests(payload):
     files = sorted(p for p in payload.rglob('*') if p.is_file())
     excluded = {'sdk', 'NSIS', 'helpers', 'languages', 'msi'}
     files = [p for p in files if not excluded.intersection(p.relative_to(payload).parts)
-             and p.suffix not in {'.nsi', '.pdb', '.dbg'} and not p.name.startswith('spad')]
+             and p.suffix not in {'.nsi', '.pdb', '.dbg'} and not p.name.startswith('spad')
+             and (p.relative_to(payload).parts[0] != 'portable'
+                  or p.relative_to(payload).as_posix() == 'portable/README.txt')]
     install, uninstall, dirs = [], [], set()
     for p in files:
         if p.is_symlink():

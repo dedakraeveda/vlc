@@ -22,6 +22,26 @@ Done when fork contains exact redesign source plus reproducible build instructio
 - Current native rebuild: https://github.com/dedakraeveda/vlc/actions/runs/38454233593 at e6efb4be93. Earlier 38454077735 cancelled before compile to incorporate loader fix.
 - D free fell from 135.31 to 98.64 GiB during turn, mostly unrelated concurrent disk work (Ubuntu root remains ~8.4GiB, downloaded task artifacts <1GiB). C ~17.57GiB. Continue checks; no cleanup of other jobs/user data authorized.
 
+## Latest milestone (after second rebuild)
+- Run 38454233593 SUCCESS 26m7s, binary source e6efb4be93. Artifacts downloaded with all SHA256 verified.
+- REAL Windows H.264 playback with --no-hw-dec: PASS, exit0, 4.53 sec, decoder avcodec + EOF, no plugin-load errors. Loader fix and exact compiler DLLs work.
+- Native Orca snapshot PID17032/window22282768 shows only video, not redesign. Log proves root cause: RedesignPlayer -> RedesignPlayerView -> RedesignVolume unavailable, `Canvas is not a type`. Qt contrib explicitly disables quick_canvas. Replaced Canvas with the same existing SVG-image mechanism used by RedesignIcon; volume path/colors/fill preserved.
+- Test process17032 closed/terminated after verified target identity. No blanket process termination. Firewall prompt appeared; no firewall allow/config change performed.
+- Second payload moved to dist/failed-gui-canvas, so launch.py cannot open it as verified.
+- Discovered native portable-profile support in src/win32/dirs.c. Installer/ZIP now include portable/README.txt, native resolver isolates configuration/cache/media-library. Uninstall removes only package files, retains subsequently created profile files. Shortcut points to that profile, no APPDATA/global VLC changes.
+- Agent CLI (capabilities/status/preflight/plan/apply/verify) added. capabilities + exact GH identity preflight PASS; artifact integrity and runtime evidence are separate. launch.py points ONLY at final dist/verified/portable/VLC-Juxtopposed/vlc.exe.
+- Current rebuild: https://github.com/dedakraeveda/vlc/actions/runs/38458425797 at 55a567101f. Includes Canvas fix, correct NSIS quotes and isolated profile in installer/ZIP. Prior binary/UI is not deliverable.
+
+## Fourth compatibility issue / current source
+- Run38458425797 SUCCESS 19m4s, source55a567101f. GUI now instantiates and real native controls work: Show library changes tree to Home/Videos/Music/etc.; Pause changes to Play. Canvas/type errors gone.
+- Native screenshot reveals all data-URI SVG icons blank. GUI shuts down its main loop/log normally, but process hangs on exit; reproduced with both --play-and-exit and real Close button.
+- Source diagnosis: Qt6.8.3 contrib has FEATURE_qml_network=OFF. Qt qquickpixmapcache.cpp treats any non-file/non-qrc/non-image-provider URL (including data:) as a network job; without qml_network, such jobs do not run. Reference: https://codebrowser.dev/qt6/qtdeclarative/src/quick/util/qquickpixmapcache.cpp.html (processJobs/processJob). Blank icons + shutdown hang are consistent with pending data: image jobs.
+- Added RedesignSvgImageProvider using the SAME existing native ImageHelper SVG handler; no network, no Qt rebuild, no asset/style replacement. Bounded input64KiB/output4096px, rejects external image/href/DOCTYPE. RedesignIcon/volume now use image://redesignsvg/. Registered in MainUI. Current new patch still needs compile/runtime verification.
+- Closed only confirmed firewall prompts HWND10094622 and27330870 owned byPickerHost11164 through WM_CLOSE; permission was not allowed. Both handles verified destroyed. Native screenshots may contain OS overlays; do not publish the full-screen capture (includes unrelated notifications). Keep only a clean bounded target-window image later.
+- Test process20664 confirmed target; after Close it remained alive8sec, then was terminated. Failed payload moved to dist/failed-inline-svg. No launcher points to it.
+- Added profile exclusion to packaging scripts (only portable/README.txt may ship), CLI concurrency/dirty-source/auth safeguards and14 unit tests, all PASS. Code changes since55 are not yet binary-tested.
+
 ## Next / not done
-Wait for rebuild, diagnose failures, download to dist/verified (do not overwrite first artifacts). Verify plugins + real playback, real GUI window screenshot/interactions, custom installer install/uninstall in exact scratch directory with own registry keys, verify stock VLC untouched. Locally regenerate installer if needed to apply final packaging quote fix. Publish verified installer/portable as GitHub release, update README/task-state/dashboard and source commits. Qt offscreen is not supported by this static Qt image; do not count it as visual proof.
+Commit fourth SVG provider patch and start native rebuild; diagnose if needed; download to dist/verified. Playback recheck, real Qt GUI startup/playback to normal exit with QML warnings checked (verify_runtime.py --gui now uses REAL Windows window, not unsupported offscreen). Native screenshot and UI interactions must show redesign, not only video. Custom installer install/uninstall in exact task scratch directory; own HKCU registry keys/shortcut must be absent before test and removed after, stock VLC registry and profile unchanged. Publish verified installer/portable release, update docs/task-state/dashboard and commit/push. Clean only exact task-created failed artifacts after process identity checks. C17.54/D97.49GiB after second artifact download; D unrelated growth stabilized.
+
 

@@ -29,7 +29,7 @@ T.Slider {
             // colors through its already-supported SVG image plugin.
             readonly property string shape: "M2 9.8 L88 1 Q90 1 90 4 L90 24 Q90 27 88 27 L2 18.2 Q0 18.2 0 14 Z"
             function svg(fill, defs) {
-                return "data:image/svg+xml;utf8," + encodeURIComponent(
+                return "image://redesignsvg/" + encodeURIComponent(
                     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 28">'
                     + (defs || "") + '<path d="' + shape + '" fill="' + fill + '"/></svg>')
             }

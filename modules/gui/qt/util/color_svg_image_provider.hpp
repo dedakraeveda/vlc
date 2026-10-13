@@ -21,6 +21,7 @@
 
 #include <QObject>
 #include <QQuickAsyncImageProvider>
+#include <QQuickImageProvider>
 #include <QString>
 #include <QUrlQuery>
 
@@ -38,6 +39,15 @@ public:
     QQuickImageResponse* requestImageResponse(const QString &id, const QSize &requestedSize) override;
 };
 
+
+// Local inline SVGs must not use data: URLs: VLC's static Qt disables
+// qml_network, and those requests otherwise never complete.
+class RedesignSvgImageProvider : public QQuickImageProvider
+{
+public:
+    RedesignSvgImageProvider() : QQuickImageProvider(QQuickImageProvider::Image) {}
+    QImage requestImage(const QString& id, QSize* size, const QSize& requestedSize) override;
+};
 
 class SVGColorImageBuilder : public QObject
 {
