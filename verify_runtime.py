@@ -73,7 +73,7 @@ def main():
     text = log.read_text('utf-8', errors='replace') if log.exists() else ''
     combined = text + err.decode('utf-8', errors='replace')
     if args.gui:
-        ok = alive and proc.returncode == 0 and 'using interface module "qt"' in combined and not any(
+        ok = alive and proc.returncode == 0 and 'using interface module "qt"' in combined and 'using video decoder module' in combined and 'EOF reached' in combined and not any(
             s in combined for s in ['failed to load component', 'QQmlApplicationEngine failed', 'cannot load plug-in', 'qml loading', 'Type Redesign', 'is not a type', 'ReferenceError', 'TypeError', 'Failed to get image from provider'])
     else:
         ok = proc.returncode == 0 and 'using video decoder module' in combined and 'EOF reached' in combined and 'cannot load plug-in' not in combined

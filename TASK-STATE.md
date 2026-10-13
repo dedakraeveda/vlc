@@ -1,5 +1,8 @@
 # VLC Juxtopposed — Windows x64
 
+## Current status — acceptance PASSED
+Compiled source41e9278452, run38470541761 SUCCESS21m52s. Verified installer/portable now in dist/verified; failed builds below are historical, NOT deliverables. See review/final-verification.md and RELEASE-NOTES.md. Acceptance complete; final GitHub prerelease publication is the last delivery step.
+
 ## Goal / done when
 Owner request: fork https://github.com/dsojevic/vlc/tree/juxtopposed-redesign, create project, build Windows installer. References: https://www.youtube.com/watch?v=ERFeOgqk324 and https://www.figma.com/community/file/1691465999134370980/vlc-redesign.
 Done when fork contains exact redesign source plus reproducible build instructions, Windows x64 installer and portable build exist with hashes, executable runs and plays real test media, installer is smoke-tested in isolated directory, dashboard registered.
@@ -50,7 +53,24 @@ Done when fork contains exact redesign source plus reproducible build instructio
 - Runtime helper now uses file stderr + proc.wait (no inherited-pipe false timeout), reports timedOut; turns off upstream crash dump, autoresize/resume. Source frontend WinVLC hardcodes shared crashdump path, so launcher/NSIS shortcut now pass --no-crashdump; direct portable launch must do so too. Profile/registry tests use a real temporary install, Win32 COM shortcut assertions, actual installed playback and uninstall sentinels. verify_installer.py implemented but NOT YET RUN.
 - Updated user/build docs and finish-build to include actual README attribution. Final packaging includes new shortcut flags and explicit working directory.
 
-## Next / not done
-Commit and start fifth native rebuild (WinVLC final exit only; GUI/assets already proven). Download fresh dist/verified, playback + actual GUI exit0/no timeout, UIA library/settings/queue navigation and clean cropped native screenshots. Test installer roundtrip and normal shortcut. Publish GitHub prerelease only after all postconditions, update dashboard, docs/state, source commit/push. The fourth payload's UI works but it is NOT a verified deliverable because process exit is still broken.  Playback recheck, real Qt GUI startup/playback to normal exit with QML warnings checked (verify_runtime.py --gui now uses REAL Windows window, not unsupported offscreen). Native screenshot and UI interactions must show redesign, not only video. Custom installer install/uninstall in exact task scratch directory; own HKCU registry keys/shortcut must be absent before test and removed after, stock VLC registry and profile unchanged. Publish verified installer/portable release, update docs/task-state/dashboard and commit/push. Clean only exact task-created failed artifacts after process identity checks. C17.54/D97.49GiB after second artifact download; D unrelated growth stabilized.
+## Independent review and current build
+- Gemini/AGY plan review attempted via official AskAntigravity; blocked by Antigravity account regional eligibility. No credential/proxy/region change attempted. Alternative official Claude Code CLI read-only restricted/safe mode succeeded; review/independent-review.md contains actual code+image review.
+- Reviewer confirms all visible SVG controls, seek/time alignment, volume shape/colors; no visual basic-scenario blocker. Runtime must still prove process exit and saved state. Important finding: fflush(NULL) required before self-TerminateProcess to preserve buffered CRT output; added.
+- Original icon paths unchanged vs upstream43283e42: only source URL scheme changed. Existing light-theme/alpha/HiDPI caveats are inherited/advisory, not reason to replace the requested original design.
+- DESIGN.md records original QML token system and explicit native/desktop/DOM exceptions. Clean review/player-native.png contains only generated test media + own UI (external transparent frame cropped); no OS notifications.
+- Run38468422179 at71c931490f cancelled at16m34s to include required CRT flush before release. CURRENT RUN: https://github.com/dedakraeveda/vlc/actions/runs/38470541761 at41e9278452. Full native compile, final per-user installer/README attribution and shortcut flags all included; no local binary patching.
+
+## Final verified results
+- Fresh CI artifacts downloaded, both SHA256 verified; no local binary patching. Source41e9278452.
+- Portable H.264 decoder+EOF exit0/4.42s/no timeout; Qt startup+decoder+EOF exit0/4.94s/no timeout. Runtime helper now additionally requires decoder and EOF for GUI success.
+- Actual final native UI PID33328 HWND114820178 at1440x820: all SVG icons/volume rendered, Pause becomes Play, Show library adds navigation, Music adds Songs/Albums/Artists/Genres, Queue lists actual synthetic test-video.mp4. Real Close removes process; NO external termination. No leftover vlc.exe processes. Actual images only own content, cropped external transparent margin: review/*-final.png.
+- verify_installer.py --authorized PASS: actual per-user install to exact D scratch,538 files match ZIP, .lnk target/args/workingdir + own HKCU verified, installed H.264 playback exit0/4.47s, uninstall removes own files/keys/link and preserves user sentinels; stock VLC registry/profile metadata unchanged. No silent replacement of existing installation. Shortcut contents validated, not an asserted ShellExecute/manual wizard test.
+- Python compileall PASS,14 unittest PASS, agent_cli verify confirms both hashes. PE certificate directory absent for Setup+vlc.exe: unsigned.
+- Two real independent Claude Code read-only image/code reviews; second finds no basic-scenario code/image blocker. Important doc finding fixed in DESIGN.md; original upstream icon paths unchanged, remaining light-theme/HiDPI/global-finalizer caveats documented, not silently refactored.
+- Dashboard active, registry description updated, sync.py run. Folder shortcut intentionally opens project/artifacts rather than a generated console/browser launcher. WSL dependencies/partial Docker cache are machine-local on D; never transferred devices. No complete local compile claimed.
+- Disk C17.94GiB before task ->15.77GiB near finish; D135.31->100.13GiB with concurrent unrelated work. Task heavy downloads/extraction, archives/build temp on D; final dist/verified383,217,517 bytes including extracted payload. Historical failed payloads remain isolated on D; own installer sentinels remain in D scratch, actual installed package removed. No other user data or OpenAICodexTray directories touched.
+
+## Delivery remaining
+Commit documentation/evidence, push, publish prerelease juxtopposed-win64-preview-1 (installer+ZIP+SHA256SUMS), verify live release assets and generated dashboard folder shortcut. Rollback: uninstall only own app; preserve user profile; revert fork commits if requested. Experimental VLC4, no exhaustive all-codec/network/HiDPI/preferences certification.
 
 

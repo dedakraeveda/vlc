@@ -100,6 +100,12 @@ sha256sum <new-Setup.exe> <new-portable.zip>
   через существующий native SVG handler, без сети и без замены SVG-путей.
 - Загрузка plugin DLL учитывает runtime из **каталога EXE и System32**,
   не CWD/PATH. GCC DLL взяты из того же CI-компилятора.
+- Standalone MinGW WinVLC после `libvlc_release`, освобождения crash-handler/
+  argv и `fflush(NULL)` завершает **свой** процесс через `TerminateProcess`:
+  глобальная финализация статической Qt DLL под loader-lock иначе зависает.
+  Это сознательный обход DLL_PROCESS_DETACH после очистки приложения, не
+  внешнее убийство процесса во время playback. Embedded libVLC не изменён.
+  Полнота сохранения всех Qt/сторонних буферов отдельно не сертифицирована.
 
 ## Приёмочные проверки
 

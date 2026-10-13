@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "source": "41e9278452",
+  "pid": 33328,
+  "window": [
+    1440,
+    820
+  ],
+  "iconsVisible": true,
+  "pauseChangedToPlay": true,
+  "libraryNavigation": "Music -> Songs/Albums/Artists/Genres",
+  "queueContains": "test-video.mp4",
+  "processExitedAfterRealClose": true,
+  "externalTermination": false
+}

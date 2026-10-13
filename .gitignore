@@ -70,3 +70,6 @@ static-lib/
 /build-logs/
 /smoke/
 !build-local.sh
+/review/claude-review.json
+/review/claude-final-review.json
+/review/review-request.md
