@@ -16,6 +16,8 @@ find /usr/share/doc -path '*mingw*' -name copyright -exec sh -c 'echo "===== $1 
 test -s "$PAYLOAD/COMPILER-LICENSES.txt"
 cp "$SOURCE/COPYING.LIB" "$PAYLOAD/COPYING.LIB.txt"
 cp "$SOURCE/WINDOWS-REDESIGN.md" "$PAYLOAD/WINDOWS-REDESIGN.txt"
+mkdir -p "$PAYLOAD/portable"
+cp "$SOURCE/packaging/PROFILE-README.txt" "$PAYLOAD/portable/README.txt"
 python3 "$SOURCE/packaging/build_installer.py" --payload "$PAYLOAD" \
     --output "$OUTPUT/VLC-Juxtopposed-4.0-dev-win64-Setup.exe" --work "$WORK"
 python3 "$SOURCE/packaging/portable_archive.py" --payload "$PAYLOAD" \
