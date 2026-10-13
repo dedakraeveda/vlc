@@ -1,7 +1,7 @@
 # VLC Juxtopposed — Windows x64
 
 ## Current status — acceptance PASSED
-Compiled source41e9278452, run38470541761 SUCCESS21m52s. Verified installer/portable now in dist/verified; failed builds below are historical, NOT deliverables. See review/final-verification.md and RELEASE-NOTES.md. Acceptance complete; final GitHub prerelease publication is the last delivery step.
+DONE: https://github.com/dedakraeveda/vlc/releases/tag/juxtopposed-win64-preview-1 — published non-draft prerelease,3 assets. Compiled source41e9278452, run38470541761 SUCCESS21m52s. Verified installer/portable in dist/verified; failed builds below are historical, NOT deliverables. See review/final-verification.md and RELEASE-NOTES.md. Live published asset sizes+SHA256 match local files; actual public SHA256SUMS downloaded and verified.
 
 ## Goal / done when
 Owner request: fork https://github.com/dsojevic/vlc/tree/juxtopposed-redesign, create project, build Windows installer. References: https://www.youtube.com/watch?v=ERFeOgqk324 and https://www.figma.com/community/file/1691465999134370980/vlc-redesign.
@@ -70,7 +70,12 @@ Done when fork contains exact redesign source plus reproducible build instructio
 - Dashboard active, registry description updated, sync.py run. Folder shortcut intentionally opens project/artifacts rather than a generated console/browser launcher. WSL dependencies/partial Docker cache are machine-local on D; never transferred devices. No complete local compile claimed.
 - Disk C17.94GiB before task ->15.77GiB near finish; D135.31->100.13GiB with concurrent unrelated work. Task heavy downloads/extraction, archives/build temp on D; final dist/verified383,217,517 bytes including extracted payload. Historical failed payloads remain isolated on D; own installer sentinels remain in D scratch, actual installed package removed. No other user data or OpenAICodexTray directories touched.
 
-## Delivery remaining
-Commit documentation/evidence, push, publish prerelease juxtopposed-win64-preview-1 (installer+ZIP+SHA256SUMS), verify live release assets and generated dashboard folder shortcut. Rollback: uninstall only own app; preserve user profile; revert fork commits if requested. Experimental VLC4, no exhaustive all-codec/network/HiDPI/preferences certification.
+## Delivery complete / rollback
+- Source/evidence commit ec7d85f712 pushed; release tag juxtopposed-win64-preview-1 created without rewriting prior tags. Binary native source remains41e9278452; later commits are docs/verification only.
+- Live GitHub release3 uploaded assets; digest+size exact for all3. Public215-byte SHA256SUMS fetched via download_with_progress, verifiedSHA90a078975a0126a7808ca52c1a8bf1e82bc5e0347de305d811cc147f5f7a8887.
+- Final dashboard sync completed; actual shortcut D:/Desktop/project-start/Projects/Folders/VLC — Juxtopposed redesign.lnk targets existing C:/Windows/explorer.exe with quoted existing project folder argument. No generated console/browser launcher used.
+- Finish disk C15.73GiB/D100.13GiB. C remains below20GiB; all task heavy files on verified D, no unrelated cleanup performed. Final assets+extracted payload ~365.5MiB on D; historical failed outputs and D WSL partial image/dependencies retained for diagnostics, own uninstall sentinel files retained.
+- No remaining acceptance blocker. Known preview limits are explicit in RELEASE-NOTES. Gemini regional block was handled via existing Claude Code CLI, no auth/proxy mutation; AGY group loaded for this session only. No Pi resource files or cross-device credentials changed.
+- Rollback: uninstall only own app, preserve profile; revert fork commits only if requested. Experimental VLC4, no exhaustive all-codec/network/HiDPI/preferences certification.
 
 
