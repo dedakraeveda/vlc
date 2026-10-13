@@ -36,13 +36,13 @@ Section "VLC Juxtopposed"
   WriteRegStr HKCU "Software\Quite\VLCJuxtopposed" "InstallDir" "$INSTDIR"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\VLCJuxtopposed" "DisplayName" "VLC Juxtopposed (unofficial redesign)"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\VLCJuxtopposed" "DisplayVersion" "4.0.0-dev"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\VLCJuxtopposed" "UninstallString" '$"$INSTDIR\Uninstall-Juxtopposed.exe$"'
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\VLCJuxtopposed" "UninstallString" '"$INSTDIR\Uninstall-Juxtopposed.exe"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\VLCJuxtopposed" "InstallLocation" "$INSTDIR"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\VLCJuxtopposed" "DisplayIcon" "$INSTDIR\vlc.exe"
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\VLCJuxtopposed" "NoModify" 1
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\VLCJuxtopposed" "NoRepair" 1
   CreateDirectory "$APPDATA\VLCJuxtopposed"
-  CreateShortCut "$SMPROGRAMS\VLC Juxtopposed.lnk" "$INSTDIR\vlc.exe" '--config=$"$APPDATA\VLCJuxtopposed\vlcrc$"'
+  CreateShortCut "$SMPROGRAMS\VLC Juxtopposed.lnk" "$INSTDIR\vlc.exe" '--config="$APPDATA\VLCJuxtopposed\vlcrc"'
 SectionEnd
 Section "Uninstall"
   SetShellVarContext current
