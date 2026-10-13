@@ -250,6 +250,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
      * https://learn.microsoft.com/windows/win32/api/processthreadsapi/nf-processthreadsapi-exitprocess
      * This affects only the standalone WinVLC frontend, never embedded libVLC.
      */
+    fflush(NULL);
     TerminateProcess(GetCurrentProcess(), 0);
 #endif
     return 0;
