@@ -61,7 +61,10 @@ void *vlc_dlopen(const char *psz_file, bool lazy)
     DWORD mode;
     if (SetThreadErrorMode (SEM_FAILCRITICALERRORS, &mode) != 0)
     {
-        handle = LoadLibraryExW(wfile, NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+        /* Static contribs may reference the packaged GCC exception runtime.
+         * Search only the executable directory and System32, never CWD/PATH. */
+        handle = LoadLibraryExW(wfile, NULL,
+            LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_APPLICATION_DIR);
         SetThreadErrorMode (mode, NULL);
     }
 #elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)

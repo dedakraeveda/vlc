@@ -32,7 +32,7 @@ def main():
                '--no-qt-updates-notif', '--no-qt-autoload-extensions',
                '--file-logging', '--logfile=' + str(log), '--verbose=2']
     if args.visible:
-        command += ['--intf=qt', '--no-audio', '--avcodec-hw=none',
+        command += ['--intf=qt', '--no-audio', '--no-hw-dec',
                     '--repeat', str(work / 'test-video.mp4')]
         with (work / 'visible-stderr.log').open('wb') as stderr:
             proc = subprocess.Popen(command, env=env, cwd=exe.parent,
@@ -43,10 +43,10 @@ def main():
         return
     if args.gui:
         env['QT_QPA_PLATFORM'] = 'offscreen'
-        command += ['--intf=qt', '--vout=dummy', '--no-audio', '--avcodec-hw=none',
+        command += ['--intf=qt', '--vout=dummy', '--no-audio', '--no-hw-dec',
                     '--play-and-exit', str(work / 'test-video.mp4')]
     else:
-        command += ['--intf=dummy', '--vout=dummy', '--no-audio', '--avcodec-hw=none',
+        command += ['--intf=dummy', '--vout=dummy', '--no-audio', '--no-hw-dec',
                     '--play-and-exit', str(work / 'test-video.mp4')]
     started = time.monotonic()
     proc = subprocess.Popen(command, env=env, cwd=exe.parent, stdin=subprocess.DEVNULL,
@@ -67,7 +67,7 @@ def main():
     combined = text + err.decode('utf-8', errors='replace')
     if args.gui:
         ok = alive and proc.returncode == 0 and 'using interface module "qt"' in combined and not any(
-            s in combined for s in ['failed to load component', 'QQmlApplicationEngine failed', 'cannot load plug-in'])
+            s in combined for s in ['failed to load component', 'QQmlApplicationEngine failed', 'cannot load plug-in', 'qml loading'])
     else:
         ok = proc.returncode == 0 and 'using video decoder module' in combined and 'EOF reached' in combined and 'cannot load plug-in' not in combined
     result = {'ok': ok, 'operation': 'qt-startup' if args.gui else 'playback',
