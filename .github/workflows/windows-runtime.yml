@@ -1,0 +1,34 @@
+name: Matching Windows compiler runtime
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    container:
+      image: registry.videolan.org/vlc-debian-win64-posix:20260611225331
+      options: --user root
+    steps:
+      - name: Export runtime from the exact VLC compiler image
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p runtime
+          for name in libgcc_s_seh-1.dll libwinpthread-1.dll; do
+            path="$(x86_64-w64-mingw32-gcc -print-file-name="$name")"
+            test -f "$path"
+            cp "$path" runtime/
+          done
+          x86_64-w64-mingw32-gcc --version > runtime/COMPILER.txt
+          find /usr/share/doc -path '*mingw*' -name copyright -exec sh -c 'echo "===== $1 ====="; cat "$1"' sh {} \; > runtime/COMPILER-LICENSES.txt
+          test -s runtime/COMPILER-LICENSES.txt
+          cd runtime
+          sha256sum * > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: matching-win64-runtime
+          path: runtime/
+          if-no-files-found: error
+          retention-days: 30
