@@ -1,0 +1,40 @@
+name: Windows x64 redesign
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    container:
+      image: registry.videolan.org/vlc-debian-win64-posix:20260611225331
+      options: --user root
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build native VLC and NSIS installer
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          export JOBS=4
+          export WINEDEBUG=-all
+          export WINEPREFIX=/tmp/vlc-wine
+          mkdir -p /tmp/vlc-build
+          export VLC_CONTRIB_SHA="$(extras/ci/get-contrib-sha.sh win64)"
+          export VLC_PREBUILT_CONTRIBS_URL="https://artifacts.videolan.org/vlc/win64/vlc-contrib-x86_64-w64-mingw32-${VLC_CONTRIB_SHA}.tar.zst"
+          cd /tmp/vlc-build
+          "$GITHUB_WORKSPACE/extras/package/win32/build.sh" -a x86_64 -p -i r
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          find win64 -maxdepth 1 -type f \( -name '*.exe' -o -name '*.zip' -o -name '*.7z' \) -exec cp {} "$GITHUB_WORKSPACE/dist/" \;
+          test -n "$(find "$GITHUB_WORKSPACE/dist" -name '*.exe' -print -quit)"
+          cd "$GITHUB_WORKSPACE/dist"
+          sha256sum * > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vlc-juxtopposed-win64
+          path: dist/
+          retention-days: 30
+          if-no-files-found: error
