@@ -241,5 +241,16 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
         free (argv[i]);
 
     (void)hInstance; (void)hPrevInstance; (void)lpCmdLine; (void)nCmdShow;
+#ifdef __MINGW32__
+    /* libvlc_release above has already stopped playback and persisted the
+     * interface/media-library state. Static Qt/winpthreads finalizers can
+     * otherwise wait forever under the Windows loader lock at DLL detach,
+     * after ExitProcess has killed their peer threads. Do not repeat those
+     * unsafe DLL notifications after the application's orderly cleanup.
+     * https://learn.microsoft.com/windows/win32/api/processthreadsapi/nf-processthreadsapi-exitprocess
+     * This affects only the standalone WinVLC frontend, never embedded libVLC.
+     */
+    TerminateProcess(GetCurrentProcess(), 0);
+#endif
     return 0;
 }

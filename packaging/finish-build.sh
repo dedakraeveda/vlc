@@ -16,6 +16,7 @@ find /usr/share/doc -path '*mingw*' -name copyright -exec sh -c 'echo "===== $1 
 test -s "$PAYLOAD/COMPILER-LICENSES.txt"
 cp "$SOURCE/COPYING.LIB" "$PAYLOAD/COPYING.LIB.txt"
 cp "$SOURCE/WINDOWS-REDESIGN.md" "$PAYLOAD/WINDOWS-REDESIGN.txt"
+cp "$SOURCE/README.md" "$PAYLOAD/README-REDESIGN.txt"
 mkdir -p "$PAYLOAD/portable"
 cp "$SOURCE/packaging/PROFILE-README.txt" "$PAYLOAD/portable/README.txt"
 python3 "$SOURCE/packaging/build_installer.py" --payload "$PAYLOAD" \

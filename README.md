@@ -1,3 +1,19 @@
+# VLC Juxtopposed — Windows x64 preview
+
+Нативный VLC 4 с редизайном Juxtopposed из ветки
+[`dsojevic/vlc:juxtopposed-redesign`](https://github.com/dsojevic/vlc/tree/juxtopposed-redesign).
+Это **неофициальная экспериментальная сборка**, не skin для VLC 3 и не веб-обёртка.
+
+- [Установщик и portable ZIP](https://github.com/dedakraeveda/vlc/releases/tag/juxtopposed-win64-preview-1)
+- [Сборка, проверка и ограничения](WINDOWS-REDESIGN.md)
+- [Точное состояние проверок](TASK-STATE.md)
+
+Установка для текущего пользователя, отдельный профиль, без замены обычного VLC
+и без изменения файловых ассоциаций. Установщик не подписан цифровой подписью.
+Авторство дизайна и лицензии сохранены ниже.
+
+---
+
 # VLC media player
 
 **VLC** is a libre and open source **media player** and **multimedia engine**,

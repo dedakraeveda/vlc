@@ -42,7 +42,9 @@ Section "VLC Juxtopposed"
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\VLCJuxtopposed" "NoModify" 1
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\VLCJuxtopposed" "NoRepair" 1
   CreateDirectory "$INSTDIR\portable"
-  CreateShortCut "$SMPROGRAMS\VLC Juxtopposed.lnk" "$INSTDIR\vlc.exe" '--config="$INSTDIR\portable\vlcrc"'
+  SetOutPath "$INSTDIR"
+  ; WinVLC's upstream crash handler uses stock RoamingAppData even in portable mode.
+  CreateShortCut "$SMPROGRAMS\VLC Juxtopposed.lnk" "$INSTDIR\vlc.exe" '--no-crashdump --config="$INSTDIR\portable\vlcrc"'
 SectionEnd
 Section "Uninstall"
   SetShellVarContext current
