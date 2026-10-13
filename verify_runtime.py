@@ -13,6 +13,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--payload', type=Path, default=ROOT / 'dist/portable/vlc-4.0.0-dev')
     parser.add_argument('--gui', action='store_true', help='Initialize Qt offscreen (not a visual proof)')
+    parser.add_argument('--visible', action='store_true', help='Launch a real window for native visual inspection; close through the app after checking')
     args = parser.parse_args()
     work = ROOT / 'smoke'
     work.mkdir(exist_ok=True)
@@ -25,13 +26,25 @@ def main():
     log = work / ('qt-startup.log' if args.gui else 'playback.log')
     if log.exists():
         log.unlink()
+    (work / 'vlcrc').touch(exist_ok=True)
     command = [str(exe), '--no-one-instance', '--no-media-library',
                '--config=' + str(work / 'vlcrc'), '--no-qt-privacy-ask',
                '--no-qt-updates-notif', '--no-qt-autoload-extensions',
                '--file-logging', '--logfile=' + str(log), '--verbose=2']
+    if args.visible:
+        command += ['--intf=qt', '--no-audio', '--avcodec-hw=none',
+                    '--repeat', str(work / 'test-video.mp4')]
+        with (work / 'visible-stderr.log').open('wb') as stderr:
+            proc = subprocess.Popen(command, env=env, cwd=exe.parent,
+                                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                    stderr=stderr, creationflags=subprocess.CREATE_NO_WINDOW)
+        (work / 'visible-pid.json').write_text(json.dumps({'pid': proc.pid}), 'utf-8')
+        print(json.dumps({'operation': 'visual-launch', 'pid': proc.pid, 'verified': False}))
+        return
     if args.gui:
         env['QT_QPA_PLATFORM'] = 'offscreen'
-        command += ['--intf=qt']
+        command += ['--intf=qt', '--vout=dummy', '--no-audio', '--avcodec-hw=none',
+                    '--play-and-exit', str(work / 'test-video.mp4')]
     else:
         command += ['--intf=dummy', '--vout=dummy', '--no-audio', '--avcodec-hw=none',
                     '--play-and-exit', str(work / 'test-video.mp4')]
@@ -42,9 +55,8 @@ def main():
     alive = False
     try:
         if args.gui:
-            time.sleep(12)
+            time.sleep(2)
             alive = proc.poll() is None
-            proc.terminate()
         out, err = proc.communicate(timeout=40)
     except subprocess.TimeoutExpired:
         proc.kill()
@@ -54,7 +66,7 @@ def main():
     text = log.read_text('utf-8', errors='replace') if log.exists() else ''
     combined = text + err.decode('utf-8', errors='replace')
     if args.gui:
-        ok = alive and 'using interface module "qt"' in combined and not any(
+        ok = alive and proc.returncode == 0 and 'using interface module "qt"' in combined and not any(
             s in combined for s in ['failed to load component', 'QQmlApplicationEngine failed', 'cannot load plug-in'])
     else:
         ok = proc.returncode == 0 and 'using video decoder module' in combined and 'EOF reached' in combined and 'cannot load plug-in' not in combined

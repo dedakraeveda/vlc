@@ -11,7 +11,7 @@ jobs:
       image: registry.videolan.org/vlc-debian-win64-posix:20260611225331
       options: --user root
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Build native VLC and NSIS installer
@@ -27,12 +27,9 @@ jobs:
           export VLC_PREBUILT_CONTRIBS_URL="https://artifacts.videolan.org/vlc/win64/vlc-contrib-x86_64-w64-mingw32-${VLC_CONTRIB_SHA}.tar.zst"
           cd /tmp/vlc-build
           "$GITHUB_WORKSPACE/extras/package/win32/build.sh" -a x86_64 -p -i r
-          mkdir -p "$GITHUB_WORKSPACE/dist"
-          find win64 -maxdepth 1 -type f \( -name '*.exe' -o -name '*.zip' -o -name '*.7z' \) -exec cp {} "$GITHUB_WORKSPACE/dist/" \;
-          test -n "$(find "$GITHUB_WORKSPACE/dist" -name '*.exe' -print -quit)"
-          cd "$GITHUB_WORKSPACE/dist"
-          sha256sum * > SHA256SUMS
-      - uses: actions/upload-artifact@v4
+          bash "$GITHUB_WORKSPACE/packaging/finish-build.sh" \
+            /tmp/vlc-build/win64/vlc-4.0.0-dev "$GITHUB_WORKSPACE/dist" /tmp/vlc-nsis
+      - uses: actions/upload-artifact@v5
         with:
           name: vlc-juxtopposed-win64
           path: dist/
